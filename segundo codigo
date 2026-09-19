@@ -24,3 +24,67 @@ begin
         end if;
     end process;
 end Behavioral;
+
+Segundo codigo TB
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity tb_audio_processor is
+end tb_audio_processor;
+
+architecture sim of tb_audio_processor is
+
+    signal clk           : std_logic := '0';
+    signal sample_in     : std_logic_vector(15 downto 0) := (others => '0');
+    signal command_found : std_logic;
+
+    -- Instancia del DUT (Device Under Test)
+    component audio_processor
+        Port (
+            clk           : in  std_logic;
+            sample_in     : in  std_logic_vector(15 downto 0);
+            command_found : out std_logic
+        );
+    end component;
+
+begin
+    DUT: audio_processor
+        port map (
+            clk           => clk,
+            sample_in     => sample_in,
+            command_found => command_found
+        );
+
+    -- Generador de reloj
+    clk_process : process
+    begin
+        clk <= '0';
+        wait for 5 ns;
+        clk <= '1';
+        wait for 5 ns;
+    end process;
+
+    -- Estímulos 
+    stim_process : process
+    begin
+        -- Caso 1: valor bajo (no supera umbral)
+        sample_in <= std_logic_vector(to_signed(500, 16));
+        wait for 20 ns;
+
+        -- Caso 2: valor alto positivo (supera umbral)
+        sample_in <= std_logic_vector(to_signed(2000, 16));
+        wait for 20 ns;
+
+        -- Caso 3: valor alto negativo (supera umbral)
+        sample_in <= std_logic_vector(to_signed(-3000, 16));
+        wait for 20 ns;
+
+        -- Caso 4: valor cercano a cero
+        sample_in <= std_logic_vector(to_signed(100, 16));
+        wait for 20 ns;
+
+        wait; 
+    end process;
+
+end sim;
