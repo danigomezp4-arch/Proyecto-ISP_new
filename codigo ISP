@@ -1,16 +1,28 @@
-rrrr
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
+entity i2s_interface is
+    Port (
+        clk          : in  STD_LOGIC;
+        bclk         : in  STD_LOGIC; -- Bit clock del audio
+        lrclk        : in  STD_LOGIC; -- Word select canal izquierdo y derecho
+        sdata        : in  STD_LOGIC; -- Datos seriales del micrófono
+        sample_out   : out STD_LOGIC_VECTOR(15 downto 0) -- Muestra paralela
+    );
+end i2s_interface;
 
+architecture Behavioral of i2s_interface is
+    signal shift_reg : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
+begin
+    process(bclk)
+    begin
+        if rising_edge(bclk) then
+            -- Desplaza y captura bit a bit el audio serial
+            shift_reg <= shift_reg(14 downto 0) & sdata;
+        end if;
+    end process;
+    
+    sample_out <= shift_reg;
+end Behavioral;
 
-rr
-r
-
-r
-r
-r
-r
-r
-r
-
-r
-rr
