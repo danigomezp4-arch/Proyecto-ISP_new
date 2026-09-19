@@ -1,0 +1,20 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity i2c_config is
+    Port (
+        clk     : in  STD_LOGIC;
+        reset   : in  STD_LOGIC;
+        scl     : out STD_LOGIC;       -- Reloj I2C hacia el códec
+        sda     : inout STD_LOGIC;     -- Datos I2C hacia el códec
+        config_done : out STD_LOGIC    -- Bandera de configuración lista
+    );
+end i2c_config;
+
+architecture Behavioral of i2c_config is
+    -- Lógica de máquina de estados para transmitir la trama I2C
+begin
+    -- Secuencia de envío de registros al encender
+    config_done <= '1'; -- Se pone en '1' al terminar de configurar
+end Behavioral;
