@@ -1,1 +1,37 @@
 
+Tercer codigo 
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity control_fsm is
+    Port (
+        clk           : in  STD_LOGIC;
+        reset         : in  STD_LOGIC;
+        trigger       : in  STD_LOGIC;
+        alert_active  : out STD_LOGIC
+    );
+end control_fsm;
+
+architecture Behavioral of control_fsm is
+    type state_type is (reposo, ALERT);
+    signal current_state : state_type;
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            current_state <= reposo;
+            alert_active <= '0';
+        elsif rising_edge(clk) then
+            case current_state is
+                when reposo =>
+                    alert_active <= '0';
+                    if trigger = '1' then
+                        current_state <= ALERT;
+                    end if;
+                when ALERT =>
+                    alert_active <= '1'; -- Enciende LED y zumbador
+                    current_state <= reposo; -- Regresa a espera tras el ciclo
+            end case;
+        end if;
+    end process;
+end Behavioral;
