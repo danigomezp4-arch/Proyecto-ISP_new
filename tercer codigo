@@ -35,3 +35,74 @@ begin
         end if;
     end process;
 end Behavioral;
+
+tercer codigo TB
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity tb_control_fsm is
+end tb_control_fsm;
+
+architecture sim of tb_control_fsm is
+
+    signal clk          : std_logic := '0';
+    signal reset        : std_logic := '0';
+    signal trigger      : std_logic := '0';
+    signal alert_active : std_logic;
+
+  
+    component control_fsm
+        Port (
+            clk          : in  std_logic;
+            reset        : in  std_logic;
+            trigger      : in  std_logic;
+            alert_active : out std_logic
+        );
+    end component;
+
+begin
+    DUT: control_fsm
+        port map (
+            clk          => clk,
+            reset        => reset,
+            trigger      => trigger,
+            alert_active => alert_active
+        );
+
+    -- Generador de reloj
+    clk_process : process
+    begin
+        clk <= '0';
+        wait for 5 ns;
+        clk <= '1';
+        wait for 5 ns;
+    end process;
+
+    -- Estímulos 
+    stim_process : process
+    begin
+        -- Inicialización con reset
+        reset <= '1';
+        wait for 10 ns;
+        reset <= '0';
+
+        -- Caso 1: sin trigger
+        wait for 20 ns;
+
+        -- Caso 2: activar trigger
+        trigger <= '1';
+        wait for 10 ns;
+        trigger <= '0';
+        wait for 20 ns;
+
+        -- Caso 3: otro trigger
+        trigger <= '1';
+        wait for 10 ns;
+        trigger <= '0';
+        wait for 20 ns;
+
+        wait; -- detener simulación
+    end process;
+
+end sim;
+
