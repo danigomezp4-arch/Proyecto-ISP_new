@@ -1,0 +1,26 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity audio_processor is
+    Port (
+        clk          : in  STD_LOGIC;
+        sample_in    : in  STD_LOGIC_VECTOR(15 downto 0);
+        command_found: out STD_LOGIC
+    );
+end audio_processor;
+
+architecture Behavioral of audio_processor is
+begin
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            -- Ejemplo sencillo: si la amplitud del audio supera un umbral fijo
+            if signed(sample_in) > 1000 or signed(sample_in) < -1000 then
+                command_found <= '1';
+            else
+                command_found <= '0';
+            end if;
+        end if;
+    end process;
+end Behavioral;
