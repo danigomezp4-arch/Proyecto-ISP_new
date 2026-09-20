@@ -1,0 +1,76 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity TOP is
+    Port (
+        -- Reloj y Reset del sistema
+        clk_125mhz   : in  STD_LOGIC;                    -- Reloj principal de la Zybo
+        btn_rst      : in  STD_LOGIC;                    -- Botón de reseteo físico
+        
+ 
+        i2c_scl      : out STD_LOGIC;                    -- Reloj I2C para configurar el códec
+        i2c_sda      : inout STD_LOGIC;                  -- Datos I2C para configurar el códec
+        
+        bclk         : in  STD_LOGIC;                    -- Bit Clock del audio (I2S)
+        lrclk        : in  STD_LOGIC;                    -- Word Select / Canal (I2S)
+        sdata        : in  STD_LOGIC;                    -- Datos seriales del micrófono
+        
+
+        led_out      : out STD_LOGIC;                    -- LED indicador de herramienta localizada
+        buzzer_out   : out STD_LOGIC                     -- Zumbador acústico de alerta
+    );
+end TOP;
+
+architecture Behavioral of TOP is
+
+    -- Declaración de señales internas para entrelazar los módulos
+    signal config_done_sig : STD_LOGIC;
+    signal sample_bus      : STD_LOGIC_VECTOR(15 downto 0);
+    signal flag_command    : STD_LOGIC;
+    signal alert_signal    : STD_LOGIC;
+
+begin
+
+    
+    i2c_config: entity work.i2c_config
+        Port map (
+            clk         => clk_125mhz,
+            reset       => btn_rst,
+            scl         => i2c_scl,
+            sda         => i2c_sda,
+            config_done => config_done_sig
+        );
+
+ 
+    i2s_interface: entity work.i2s_interface
+        Port map (
+            clk          => clk_125mhz,
+            bclk         => bclk,
+            lrclk        => lrclk,
+            sdata        => sdata,
+            sample_out   => sample_bus
+        );
+
+    -- 3. Instancia del Procesador de Voz (Analizador de muestras)
+    audio_processor: entity work.audio_processor
+        Port map (
+            clk           => clk_125mhz,
+            sample_in     => sample_bus,
+            command_found => flag_command
+        );
+
+ 
+    control_fsm: entity work.control_fsm
+        Port map (
+            clk          => clk_125mhz,
+            reset        => btn_rst,
+            trigger      => flag_command,
+            alert_active => alert_signal
+        );
+
+  
+    led_out    <= alert_signal;
+    buzzer_out <= alert_signal;
+
+end Behavioral;
